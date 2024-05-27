@@ -1,0 +1,856 @@
+[
+  {
+    "name": "apm_service_cpm_materialized",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_service_cpm",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materializedExp": "sum{apm_service_cpm_materialized}"
+  },
+  {
+    "name": "apm_service_cpm_fail_materialized",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "trace_status": "2",
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_service_cpm_fail",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "trace_status": "2",
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materializedExp": "sum{apm_service_cpm_fail_materialized}"
+  },
+  {
+    "name": "apm_service_resp_time_total_materialized",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "sum",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_service_resp_time",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "avg",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materializedExp": "sum{apm_service_resp_time_total_materialized}/sum{apm_service_cpm_materialized}"
+  },
+  {
+    "name": "apm_service_percentile",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "percentiles",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "apm_service_instance_cpm_materialized",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name",
+      "resource.service.instance.name"
+    ],
+    "conditions": {
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_service_instance_cpm",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name",
+      "resource.service.instance.name"
+    ],
+    "conditions": {
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materializedExp": "sum{apm_service_instance_cpm_materialized}"
+  },
+  {
+    "name": "apm_service_instance_cpm_fail_materialized",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name",
+      "resource.service.instance.name"
+    ],
+    "conditions": {
+      "trace_status": "2",
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_service_instance_cpm_fail",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name",
+      "resource.service.instance.name"
+    ],
+    "conditions": {
+      "trace_status": "2",
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materializedExp": "sum{apm_service_instance_cpm_fail_materialized}"
+  },
+  {
+    "name": "apm_service_instance_resp_time_total_materialized",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "sum",
+    "groups": [
+      "resource.service.name",
+      "resource.service.instance.name"
+    ],
+    "conditions": {
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_service_instance_resp_time",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "avg",
+    "groups": [
+      "resource.service.name",
+      "resource.service.instance.name"
+    ],
+    "conditions": {
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    },
+    "materializedExp": "sum{apm_service_instance_resp_time_total_materialized}/sum{apm_service_instance_cpm_materialized}"
+  },
+  {
+    "name": "apm_service_instance_percentile",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "percentiles",
+    "groups": [
+      "resource.service.name",
+      "resource.service.instance.name"
+    ],
+    "conditions": {
+      "kind": [
+        "SERVER",
+        "CONSUMER"
+      ]
+    }
+  },
+  {
+    "name": "apm_endpoint_cpm_materialized",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name",
+      "name"
+    ],
+    "conditions": {
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_endpoint_cpm",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name",
+      "name"
+    ],
+    "conditions": {
+    },
+    "materializedExp": "sum{apm_endpoint_cpm_materialized}"
+  },
+  {
+    "name": "apm_endpoint_cpm_fail_materialized",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name",
+      "name"
+    ],
+    "conditions": {
+      "trace_status": "2"
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_endpoint_cpm_fail",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "resource.service.name",
+      "name"
+    ],
+    "conditions": {
+      "trace_status": "2"
+    },
+    "materializedExp": "sum{apm_endpoint_cpm_fail_materialized}"
+  },
+  {
+    "name": "apm_endpoint_resp_time_total_materialized",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "sum",
+    "groups": [
+      "resource.service.name",
+      "name"
+    ],
+    "conditions": {
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_endpoint_resp_time",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "avg",
+    "groups": [
+      "resource.service.name",
+      "name"
+    ],
+    "conditions": {
+    },
+    "materializedExp": "sum{apm_endpoint_resp_time_total_materialized}/sum{apm_endpoint_cpm_materialized}"
+  },
+  {
+    "name": "apm_endpoint_percentile",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "percentiles",
+    "groups": [
+      "resource.service.name",
+      "name"
+    ],
+    "conditions": {
+    }
+  },
+  {
+    "name": "apm_component_cpm_materialized",
+    "index": "holoinsight-service_relation",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "source_service_name",
+      "dest_service_name",
+      "component",
+      "type"
+    ],
+    "conditions": {
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_component_cpm",
+    "index": "holoinsight-service_relation",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "source_service_name",
+      "dest_service_name",
+      "component",
+      "type"
+    ],
+    "conditions": {
+    },
+    "materializedExp": "sum{apm_component_cpm_materialized}"
+  },
+  {
+    "name": "apm_component_cpm_fail_materialized",
+    "index": "holoinsight-service_relation",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "source_service_name",
+      "dest_service_name",
+      "component",
+      "type"
+    ],
+    "conditions": {
+      "is_error": "1"
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_component_cpm_fail",
+    "index": "holoinsight-service_relation",
+    "field": "trace_id",
+    "function": "cardinality",
+    "groups": [
+      "source_service_name",
+      "dest_service_name",
+      "component",
+      "type"
+    ],
+    "conditions": {
+      "is_error": "1"
+    },
+    "materializedExp": "sum{apm_component_cpm_fail_materialized}"
+  },
+  {
+    "name": "apm_component_resp_time_total_materialized",
+    "index": "holoinsight-service_relation",
+    "field": "latency",
+    "function": "sum",
+    "groups": [
+      "source_service_name",
+      "dest_service_name",
+      "component",
+      "type"
+    ],
+    "conditions": {
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_component_resp_time",
+    "index": "holoinsight-service_relation",
+    "field": "latency",
+    "function": "avg",
+    "groups": [
+      "source_service_name",
+      "dest_service_name",
+      "component",
+      "type"
+    ],
+    "conditions": {
+    },
+    "materializedExp": "sum{apm_component_resp_time_total_materialized}/sum{apm_component_cpm_materialized}"
+  },
+  {
+    "name": "apm_component_percentile",
+    "index": "holoinsight-service_relation",
+    "field": "latency",
+    "function": "percentiles",
+    "groups": [
+      "source_service_name",
+      "dest_service_name",
+      "component",
+      "type"
+    ],
+    "conditions": {
+    }
+  },
+  {
+    "name": "apm_service_error_cpm",
+    "index": "holoinsight-service-error",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "service_name",
+      "error_kind"
+    ],
+    "conditions": {
+    },
+    "materialized": true
+  },
+  {
+    "name": "apm_service_endpoint_error_cpm",
+    "index": "holoinsight-service-error",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "service_name",
+      "error_kind",
+      "endpoint_name"
+    ],
+    "conditions": {
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_tokens_total_avg",
+    "index": "holoinsight-span",
+    "field": "attributes.openai.response.usage.total_tokens",
+    "function": "avg",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_tokens_total_sum_groups_model",
+    "index": "holoinsight-span",
+    "field": "attributes.openai.response.usage.total_tokens",
+    "function": "sum",
+    "groups": [
+      "attributes.openai.response.model"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_tokens_total_sum_groups_api",
+    "index": "holoinsight-span",
+    "field": "attributes.openai.response.usage.total_tokens",
+    "function": "sum",
+    "groups": [
+      "resource.service.name",
+      "attributes.openai.organization.name",
+      "attributes.openai.user.api_key"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_tokens_completion_avg",
+    "index": "holoinsight-span",
+    "field": "attributes.openai.response.usage.completion_tokens",
+    "function": "avg",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_tokens_prompt_avg",
+    "index": "holoinsight-span",
+    "field": "attributes.openai.response.usage.prompt_tokens",
+    "function": "avg",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_ratelimit_requests_remaining",
+    "index": "holoinsight-span",
+    "field": "attributes.openai.organization.ratelimit.requests.remaining",
+    "function": "avg",
+    "groups": [
+      "attributes.openai.organization.name"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_ratelimit_tokens_remaining",
+    "index": "holoinsight-span",
+    "field": "attributes.openai.organization.ratelimit.tokens.remaining",
+    "function": "avg",
+    "groups": [
+      "attributes.openai.organization.name"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_request_count_groups_model",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "attributes.openai.response.model"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_request_count_groups_api",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "resource.service.name",
+      "attributes.openai.organization.name",
+      "attributes.openai.user.api_key"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_request_latency_avg",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "avg",
+    "groups": [
+      "resource.service.name",
+      "attributes.openai.response.model"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_request_latency_percentiles",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "percentiles",
+    "groups": [
+      "resource.service.name",
+      "attributes.openai.response.model"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_request_fail_count",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "trace_status": "2",
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_request_fail_count_group_type",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "resource.service.name",
+      "attributes.error.type"
+    ],
+    "conditions": {
+      "trace_status": "2",
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "openai_request_count",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "attributes.component": "openai"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_tokens_total_avg",
+    "index": "holoinsight-span",
+    "field": "attributes.langchain.tokens.total_tokens",
+    "function": "avg",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_tokens_completion_avg",
+    "index": "holoinsight-span",
+    "field": "attributes.langchain.tokens.completion_tokens",
+    "function": "avg",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_tokens_prompt_avg",
+    "index": "holoinsight-span",
+    "field": "attributes.langchain.tokens.prompt_tokens",
+    "function": "avg",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_tokens_total_sum_groups_model",
+    "index": "holoinsight-span",
+    "field": "attributes.langchain.tokens.total_tokens",
+    "function": "sum",
+    "groups": [
+      "attributes.langchain.request.model"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_tokens_total_sum_groups_api",
+    "index": "holoinsight-span",
+    "field": "attributes.langchain.tokens.total_tokens",
+    "function": "sum",
+    "groups": [
+      "resource.service.name",
+      "attributes.langchain.request.api_key"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_tokens_total_sum_groups_type",
+    "index": "holoinsight-span",
+    "field": "attributes.langchain.tokens.total_tokens",
+    "function": "sum",
+    "groups": [
+      "resource.service.name",
+      "attributes.langchain.request.type"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_request_count_groups_model",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "attributes.langchain.request.model"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_request_count_groups_api",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "resource.service.name",
+      "attributes.langchain.request.api_key"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_request_count_groups_type",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "resource.service.name",
+      "attributes.langchain.request.type"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_request_count_groups_provider",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "resource.service.name",
+      "attributes.langchain.request.provider"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_request_fail_count",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "trace_status": "2",
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_request_fail_count_group_type",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "resource.service.name",
+      "attributes.error.type"
+    ],
+    "conditions": {
+      "trace_status": "2",
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_request_count",
+    "index": "holoinsight-span",
+    "field": "trace_id",
+    "function": "count",
+    "groups": [
+      "resource.service.name"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_request_latency_avg",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "avg",
+    "groups": [
+      "resource.service.name",
+      "attributes.langchain.request.model"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  },
+  {
+    "name": "langchain_request_latency_percentiles",
+    "index": "holoinsight-span",
+    "field": "latency",
+    "function": "percentiles",
+    "groups": [
+      "resource.service.name",
+      "attributes.langchain.request.model"
+    ],
+    "conditions": {
+      "name": "langchain.request"
+    },
+    "materialized": true
+  }
+]

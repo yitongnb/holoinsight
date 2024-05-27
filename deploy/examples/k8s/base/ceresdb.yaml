@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    name: ceresdb
+  name: ceresdb
+  namespace: holoinsight-example
+spec:
+  serviceName: ceresdb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ceresdb
+  template:
+    metadata:
+      labels:
+        app: ceresdb
+        common_version: "2"
+    spec:
+      containers:
+      - name: ceresdb
+        image: ceresdb/ceresdb-server:v1.0.0
+        readinessProbe:
+          tcpSocket:
+            port: 8831
+          initialDelaySeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+          periodSeconds: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ceresdb
+  namespace: holoinsight-example
+  labels:
+    name: ceresdb
+spec:
+  ports:
+  - name: p8831
+    protocol: TCP
+    port: 8831
+    targetPort: 8831
+  - name: p3307
+    protocol: TCP
+    port: 3307
+    targetPort: 3307
+  - name: p5440
+    protocol: TCP
+    port: 5440
+    targetPort: 5440
+  selector:
+    app: ceresdb

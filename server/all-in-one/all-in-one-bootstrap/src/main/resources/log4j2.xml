@@ -1,0 +1,619 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration debug="true" status="INFO">
+
+
+	<Properties>
+		<Property name="LOG_PATH">${sys:logging.path:-./logs}/holoinsight-server</Property>
+	</Properties>
+
+	<Appenders>
+		<!-- 每个文件最多1GB, 最多保留2个rolling文件, 不按天滚动是按文件大小滚动 -->
+		<RollingFile name="ERROR-APPENDER" fileName="${LOG_PATH}/common-error.log"
+		             filePattern="${LOG_PATH}/common-error.log.%i" immediateFlush="true">
+			<!-- only print error log -->
+			<DefaultRolloverStrategy max="2"/>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %-5p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<!--最多1+2=3个文件 common-error.log common-error.log.1 common-error.log.2 -->
+			<Policies>
+				<!--每1GB滚动一个文件-->
+				<SizeBasedTriggeringPolicy size="1GB"/>
+			</Policies>
+			<ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+		</RollingFile>
+
+		<!--
+			1. 每天最多保留7个文件
+			2. 如果文件修改时间是2天前的就删除
+			3. 如果文件累计超过10个则删除旧的
+			4. 如果文件累计超过10GB则删除旧的
+			5. 对齐到整天滚动(因为 modulate=true), 如果filePattern里的时间格式包含小时, 比如"yyyy-MM-dd-HH" 那么就是对齐到整小时滚动
+			6. 单个文件累计超过2GB就滚动
+		-->
+		<RollingFile name="ROOT-APPENDER" fileName="${LOG_PATH}/common-default.log"
+		             filePattern="${LOG_PATH}/common-default.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="common-default.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<LevelRangeFilter maxLevel="INFO" minLevel="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %-5p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="TEMPLATE" fileName="${LOG_PATH}/template.log"
+		             filePattern="${LOG_PATH}/template.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="template.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+
+		<RollingFile name="DIM" fileName="${LOG_PATH}/dim.log"
+		             filePattern="${LOG_PATH}/dim.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="dim.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+
+
+		<RollingFile name="AGENT" fileName="${LOG_PATH}/agent.log"
+		             filePattern="${LOG_PATH}/agent.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="agent.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="BISTREAM" fileName="${LOG_PATH}/bistream.log"
+		             filePattern="${LOG_PATH}/bistream.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="bistream.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="HOME" fileName="${LOG_PATH}/home.log"
+		             filePattern="${LOG_PATH}/home.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="bistream.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="DIM" fileName="${LOG_PATH}/dim.log"
+		             filePattern="${LOG_PATH}/dim.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="dim.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="TARGET" fileName="${LOG_PATH}/target.log"
+		             filePattern="${LOG_PATH}/target.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="target.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="STAT" fileName="${LOG_PATH}/stat.log"
+		             filePattern="${LOG_PATH}/stat.log.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="1"/>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="1MB"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="STAT1S" fileName="${LOG_PATH}/stat1s.log"
+		             filePattern="${LOG_PATH}/stat1s.log.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="1"/>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="1MB"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="AGENT_EVENT_STAT" fileName="${LOG_PATH}/agent/stat.log"
+		             filePattern="${LOG_PATH}/agent/stat.log.%i" immediateFlush="true">
+			<DefaultRolloverStrategy max="1"/>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="1GB"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="AGENT_EVENT_DIGEST" fileName="${LOG_PATH}/agent/digest.log"
+		             filePattern="${LOG_PATH}/agent/digest.log.%i" immediateFlush="true">
+			<DefaultRolloverStrategy max="1"/>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="1GB"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="AGENT_EVENT_UP" fileName="${LOG_PATH}/agent/up.log"
+		             filePattern="${LOG_PATH}/agent/up.log.%i" immediateFlush="true">
+			<DefaultRolloverStrategy max="1"/>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="1GB"/>
+			</Policies>
+		</RollingFile>
+
+
+		<RollingFile name="AGG" fileName="${LOG_PATH}/agg/agg.log"
+		             filePattern="${LOG_PATH}/agg/agg.log.%i" immediateFlush="true">
+			<DefaultRolloverStrategy max="1"/>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %-5p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<LevelRangeFilter maxLevel="INFO" minLevel="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="AGG-ERROR" fileName="${LOG_PATH}/agg/agg-error.log"
+		             filePattern="${LOG_PATH}/agg/agg-error.log.%i" immediateFlush="true">
+			<DefaultRolloverStrategy max="1"/>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %-5p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="CLUSTER" fileName="${LOG_PATH}/cluster.log"
+					 filePattern="${LOG_PATH}/cluster.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="cluster.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="GATEWAY" fileName="${LOG_PATH}/gateway-api.log"
+					 filePattern="${LOG_PATH}/gateway-api.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="gateway-api.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+			<ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+		</RollingFile>
+
+		<RollingFile name="TASK" fileName="${LOG_PATH}/home-task.log"
+					 filePattern="${LOG_PATH}/home-task.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="home-task.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+		<RollingFile name="QUERY" fileName="${LOG_PATH}/query.log"
+					 filePattern="${LOG_PATH}/query.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="query.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+		<RollingFile name="COMMON" fileName="${LOG_PATH}/common.log"
+					 filePattern="${LOG_PATH}/common.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="query.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+		<RollingFile name="EXTENSION" fileName="${LOG_PATH}/extension.log"
+					 filePattern="${LOG_PATH}/extension.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="query.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+		<RollingFile name="HOME" fileName="${LOG_PATH}/home.log"
+					 filePattern="${LOG_PATH}/home.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="query.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+		<RollingFile name="SECURITY" fileName="${LOG_PATH}/security.log"
+					 filePattern="${LOG_PATH}/security.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="query.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+		</RollingFile>
+
+		<RollingFile name="ALERT" fileName="${LOG_PATH}/alert.log"
+					 filePattern="${LOG_PATH}/alert.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="alert.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+			<ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+		</RollingFile>
+
+		<RollingFile name="ALERT-DEBUG" fileName="${LOG_PATH}/alert-debug.log"
+					 filePattern="${LOG_PATH}/alert-debug.log.%d{yyyy-MM-dd}.%i" immediateFlush="true">
+			<!--打印INFO和WARN-->
+			<DefaultRolloverStrategy max="7">
+				<Delete basePath="${LOG_PATH}" maxDepth="1">
+					<IfAny>
+						<IfAccumulatedFileCount exceeds="10"/>
+						<IfAccumulatedFileSize exceeds="10GB"/>
+						<IfLastModified age="2d"/>
+					</IfAny>
+					<IfFileName glob="alert-debug.log.*"/>
+				</Delete>
+			</DefaultRolloverStrategy>
+			<PatternLayout charset="utf-8">
+				<pattern>%d %p [%t] %c{1.} - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<SizeBasedTriggeringPolicy size="2GB"/>
+				<TimeBasedTriggeringPolicy modulate="true"/>
+			</Policies>
+			<ThresholdFilter level="INFO" onMatch="DENY" onMismatch="NEUTRAL"/>
+			<ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+		</RollingFile>
+
+	</Appenders>
+
+	<Loggers>
+		<Logger name="TEMPLATE" additivity="false" level="INFO">
+			<Appender-Ref ref="TEMPLATE"/>
+		</Logger>
+		<Logger name="SYNC" additivity="false" level="INFO">
+			<Appender-Ref ref="DIM"/>
+		</Logger>
+
+		<Logger name="AGENT" additivity="false" level="INFO">
+			<Appender-Ref ref="AGENT"/>
+		</Logger>
+		<Logger name="AGENT_EVENT_STAT" additivity="false" level="INFO">
+			<Appender-Ref ref="AGENT_EVENT_STAT"/>
+		</Logger>
+		<Logger name="AGENT_EVENT_DIGEST" additivity="false" level="INFO">
+			<Appender-Ref ref="AGENT_EVENT_DIGEST"/>
+		</Logger>
+		<Logger name="AGENT_EVENT_UP" additivity="false" level="INFO">
+			<Appender-Ref ref="AGENT_EVENT_UP"/>
+		</Logger>
+
+		<Logger name="BISTREAM" additivity="false" level="INFO">
+			<Appender-Ref ref="BISTREAM"/>
+		</Logger>
+		<Logger name="io.holoinsight.server.registry.core.grpc.stream" additivity="false" level="INFO">
+			<Appender-Ref ref="BISTREAM"/>
+		</Logger>
+		<Logger name="io.holoinsight.server.registry.core.grpc.streambiz" additivity="false" level="INFO">
+			<Appender-Ref ref="BISTREAM"/>
+		</Logger>
+
+		<Logger name="TARGET" additivity="false" level="INFO">
+			<Appender-Ref ref="TARGET"/>
+		</Logger>
+		<Logger name="STAT" additivity="false" level="INFO">
+			<Appender-Ref ref="STAT"/>
+		</Logger>
+		<Logger name="STAT1S" additivity="false" level="INFO">
+			<Appender-Ref ref="STAT1S"/>
+		</Logger>
+
+		<Logger name="io.holoinsight.server.extension" additivity="false" level="INFO">
+			<Appender-Ref ref="EXTENSION"/>
+		</Logger>
+
+		<Logger name="io.holoinsight.server.common" additivity="false" level="INFO">
+			<Appender-Ref ref="COMMON"/>
+		</Logger>
+		<Logger name="io.holoinsight.server.home.common" additivity="false" level="DEBUG">
+			<Appender-Ref ref="COMMON"/>
+		</Logger>
+
+		<Logger name="io.holoinsight.server.gateway" additivity="false" level="INFO">
+			<Appender-Ref ref="GATEWAY"/>
+		</Logger>
+
+		<Logger name="io.holoinsight.server.meta" additivity="false" level="INFO">
+			<Appender-Ref ref="DIM"/>
+		</Logger>
+
+		<Logger name="io.holoinsight.server.home.alert" additivity="false" level="DEBUG">
+			<Appender-Ref level="INFO" ref="ALERT"/>
+			<Appender-Ref level="DEBUG" ref="ALERT-DEBUG"/>
+		</Logger>
+
+		<Logger name="io.holoinsight.server.query" additivity="false" level="DEBUG">
+			<Appender-Ref ref="QUERY"/>
+		</Logger>
+		<Logger name="io.holoinsight.server.home.common.service.QueryClientService" additivity="false" level="DEBUG">
+			<Appender-Ref ref="QUERY"/>
+		</Logger>
+
+		<Logger name="io.holoinsight.server.apm" additivity="false" level="DEBUG">
+			<Appender-Ref ref="APM"/>
+		</Logger>
+
+		<Logger name="io.holoinsight.server.home.web.security" additivity="false" level="INFO">
+			<Appender-Ref ref="SECURITY"/>
+		</Logger>
+
+		<Logger name="io.holoinsight.server.home" additivity="false" level="INFO">
+			<Appender-Ref ref="HOME"/>
+		</Logger>
+		<Logger name="io.holoinsight.server.common.config.ProdLog" additivity="false" level="INFO">
+			<Appender-Ref ref="CLUSTER"/>
+		</Logger>
+		<Logger name="io.holoinsight.server.home.alert.service.task.coordinator" additivity="false" level="INFO">
+			<Appender-Ref ref="CLUSTER"/>
+		</Logger>
+		<Logger name="io.holoinsight.server.home.task" additivity="false" level="DEBUG">
+			<Appender-Ref ref="TASK"/>
+		</Logger>
+
+		<Logger name="org.elasticsearch.client.RestClient" additivity="false" level="off"/>
+
+		<Logger name="io.holoinsight.server.agg" additivity="false" level="INFO">
+			<Appender-Ref ref="AGG"/>
+			<Appender-Ref ref="AGG-ERROR" level="ERROR"/>
+		</Logger>
+		<Root level="INFO">
+			<Appender-Ref level="INFO" ref="ROOT-APPENDER"/>
+			<Appender-Ref level="ERROR" ref="ERROR-APPENDER"/>
+		</Root>
+	</Loggers>
+
+
+</Configuration>

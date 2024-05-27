@@ -1,0 +1,159 @@
+# shared directory between containers
+volumes:
+  share:
+
+services:
+  mysql:
+    extends:
+      file: ../common/base.yaml
+      service: mysql
+  phpmyadmin:
+    extends:
+      file: ../common/base.yaml
+      service: phpmyadmin
+  ceresdb:
+    extends:
+      file: ../common/base.yaml
+      service: ceresdb
+  prometheus:
+    extends:
+      file: ../common/base.yaml
+      service: prometheus
+    depends_on:
+      ceresdb:
+        condition: service_healthy
+  es:
+    extends:
+      file: ../common/base.yaml
+      service: es
+  kibana:
+    extends:
+      file: ../common/base.yaml
+      service: kibana
+    depends_on:
+      es:
+        condition: service_healthy
+    profiles:
+    - debug
+  mysql-data-init:
+    extends:
+      file: ../common/base.yaml
+      service: mysql-data-init
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+    - ./data.sql:/sql/1data/V999999__data.sql
+  ai:
+    image: holoinsight/ai:1.0.0
+    pull_policy: always
+  server:
+    extends:
+      file: ../common/base.yaml
+      service: server
+    depends_on:
+      mysql-data-init:
+        condition: service_completed_successfully
+      ceresdb:
+        condition: service_healthy
+      es:
+        condition: service_healthy
+    volumes:
+    - ./application.yaml:/home/admin/application.yaml:ro
+    - share:/share
+    - ../common/logwriter.py:/home/admin/test/logwriter.py:ro
+    - ../common/log-generator.py:/home/admin/test/log-generator.py:ro
+    - ../common/log-alert-generator.py:/home/admin/test/log-alert-generator.py:ro
+    - ../common/log-json-generator.py:/home/admin/test/log-json-generator.py:ro
+  collector:
+    extends:
+      file: ../common/base.yaml
+      service: collector
+    depends_on:
+      server:
+        condition: service_healthy
+  agent-image:
+    extends:
+      file: ../common/base.yaml
+      service: agent-image
+    pull_policy: always
+    volumes:
+    - share:/share
+    entrypoint:
+    - bash
+    - -c
+    - |
+      cp /usr/local/holoinsight/agent/bin/agent /share/agent
+      cp /temp/agent.yaml /share/agent.yaml
+  grafana:
+    extends:
+      file: ../common/base.yaml
+      service: grafana
+    profiles:
+    - debug
+  ttyd:
+    extends:
+      file: ../common/base.yaml
+      service: ttyd
+    profiles:
+    - ttyd
+    volumes:
+    - share:/share
+    entrypoint: [ "cp", "/usr/bin/ttyd", "/share/ttyd" ]
+  finish:
+    image: busybox:1.35
+    depends_on:
+      server:
+        condition: service_healthy
+      collector:
+        condition: service_healthy
+      agent-image:
+        condition: service_completed_successfully
+    entrypoint: [ "true" ]
+
+  # demo
+  demo-client:
+    extends:
+      file: ../demo/docker-compose.yaml
+      service: demo-client
+    volumes:
+    - share:/share
+    - ../common/agent_entrypoint.sh:/agent_entrypoint.sh
+    depends_on:
+      collector:
+        condition: service_healthy
+      demo-server:
+        condition: service_healthy
+  demo-server:
+    extends:
+      file: ../demo/docker-compose.yaml
+      service: demo-server
+    volumes:
+    - share:/share
+    - ../common/agent_entrypoint.sh:/agent_entrypoint.sh
+    depends_on:
+      collector:
+        condition: service_healthy
+      demo-redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+  demo-redis:
+    extends:
+      file: ../demo/docker-compose.yaml
+      service: demo-redis
+  kafka:
+    extends:
+      file: ../common/base.yaml
+      service: kafka
+    healthcheck:
+      test: [ "CMD", "timeout", "1", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9092" ]
+      interval: 3s
+      retries: 300
+      timeout: 10s
+  kafka-ui:
+    extends:
+      file: ../common/base.yaml
+      service: kafka-ui
+    depends_on:
+    - kafka

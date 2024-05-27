@@ -1,0 +1,12 @@
+resources:
+- namespace.yaml
+- clusterroles.yaml
+- clusterrolebindings.yaml
+- mysql.yaml
+- ceresdb.yaml
+- server.yaml
+- collector.yaml
+- cadvisor.yaml
+- daemonagent.yaml
+- clusteragent.yaml
+- prometheus.yaml
